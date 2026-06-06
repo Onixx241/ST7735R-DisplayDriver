@@ -8,8 +8,18 @@
 //commandz
 #define SleepOut 0x11
 #define SleepIn 0x10
+
 #define DisplayOn 0x29
 #define DisplayOff 0x28
+
+#define InversionOn 0x21
+#define InversionOff 0x20
+
+#define PartialArea 0x30
+#define PartialModeOn 0x12
+#define PartialModeOff 0x13
+
+#define GammaSet 0x26
 
 #include "main.h"
 
@@ -22,6 +32,39 @@ void EnableDataSend()
 	DataCommand_GPIO_Port->BSRR = GPIO_BSRR_BS_10;
 }
 
+void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
+{
+
+	SelectTFT();
+	EnableCommandSend();
+
+	HAL_SPI_Transmit(desiredSPI, &command, 1, 100);// change this to bare metal code
+
+	UnselectTFT();
+
+}
+void SendDataParameter(SPI_HandleTypeDef *desiredSPI, uint8_t parameter)
+{
+
+	SelectTFT();
+	EnableDataSend();
+
+	HAL_SPI_Transmit(desiredSPI, &parameter, 1, 100);// change this to bare metal code
+
+	UnselectTFT();
+
+}
+void SendCommandWithParameters(SPI_HandleTypeDef *desiredSPI, uint8_t command, uint8_t parameters[])
+{
+	SendCommand(desiredSPI, command);
+
+
+	for(int i = 0; i <= sizeof(parameters); i++)
+	{
+		SendDataParameter(desiredSPI, parameters[i]);
+	}
+
+}
 
 
 void SelectTFT()
@@ -64,20 +107,49 @@ void TurnDisplayOff(SPI_HandleTypeDef *desiredSPI)
 	SendCommand(desiredSPI, DisplayOff);
 }
 
+void TurnInversionOn(SPI_HandleTypeDef *desiredSPI)
+{
+	SendCommand(desiredSPI, InversionOn);
+}
+void TurnInversionOff(SPI_HandleTypeDef *desiredSPI)
+{
+	SendCommand(desiredSPI, InversionOff);
+}
+
+void TurnPartialModeOn(SPI_HandleTypeDef *desiredSPI)
+{
+	SendCommand(desiredSPI, PartialModeOn );
+}
+void TurnPartialModeOff(SPI_HandleTypeDef *desiredSPI)
+{
+	SendCommand(desiredSPI, PartialModeOff );
+}
+
+void GammaSetTEST(SPI_HandleTypeDef *desiredSPI)//implement curves 1 2 3 4 , in one method?
+{
+	uint8_t Params[] = {0x01};
+	SendCommandWithParameters(desiredSPI, GammaSet, Params);
+
+	HAL_Delay(2000);
+
+	uint8_t Paramss[] = {0x02};
+	SendCommandWithParameters(desiredSPI, GammaSet, Paramss);
+
+	HAL_Delay(2000);
+
+	uint8_t Paramsss[] = {0x04};
+	SendCommandWithParameters(desiredSPI, GammaSet, Paramsss);
+
+	HAL_Delay(2000);
+
+	uint8_t Paramssss[] = {0x08};
+	SendCommandWithParameters(desiredSPI, GammaSet, Paramssss);
+
+	HAL_Delay(2000);
+}
 
 //End of Commands
 
-void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
-{
-
-	SelectTFT();
-	EnableCommandSend();
-
-	HAL_SPI_Transmit(desiredSPI, &command, 1, 100);// change this to bare metal code
-
-	UnselectTFT();
-
-}
 
 void CycleReset()
 {
