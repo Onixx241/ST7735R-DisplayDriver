@@ -35,6 +35,24 @@ void EnableDataSend()
 	DataCommand_GPIO_Port->BSRR = GPIO_BSRR_BS_10;
 }
 
+void SelectTFT()
+{
+	TFT_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BR_8; //Select active low
+}
+void UnselectTFT()
+{
+	TFT_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BS_8;
+}
+
+void SelectSD()
+{
+	SD_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BR_10; //Select active low
+}
+void UnselectSD()
+{
+	SD_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BS_10;
+}
+
 void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
 {
 
@@ -69,24 +87,6 @@ void SendCommandWithParameters(SPI_HandleTypeDef *desiredSPI, uint8_t command, u
 
 }
 
-
-void SelectTFT()
-{
-	TFT_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BR_8; //Select active low
-}
-void UnselectTFT()
-{
-	TFT_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BS_8;
-}
-
-void SelectSD()
-{
-	SD_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BR_10; //Select active low
-}
-void UnselectSD()
-{
-	SD_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BS_10;
-}
 
 //Commmands
 
