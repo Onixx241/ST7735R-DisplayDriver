@@ -5,7 +5,10 @@
  *      Author: onixt
  */
 
-//commandz
+//33 commandz
+#define Nop 0x00
+#define SWReset 0x01
+
 #define SleepOut 0x11
 #define SleepIn 0x10
 
@@ -17,7 +20,7 @@
 
 #define PartialArea 0x30
 #define PartialModeOn 0x12
-#define PartialModeOff 0x13
+#define NormalDisplayModeOn 0x13
 
 #define GammaSet 0x26
 
@@ -87,6 +90,16 @@ void UnselectSD()
 
 //Commmands
 
+void NoOperation(SPI_HandleTypeDef *desiredSPI)
+{
+	SendCommand(desiredSPI, Nop);
+}
+
+void SoftwareReset(SPI_HandleTypeDef *desiredSPI)
+{
+	SendCommand(desiredSPI, SWReset);
+}
+
 void SendSleepOut(SPI_HandleTypeDef *desiredSPI)
 {
 	SendCommand(desiredSPI, SleepOut);
@@ -125,27 +138,23 @@ void TurnPartialModeOff(SPI_HandleTypeDef *desiredSPI)
 	SendCommand(desiredSPI, PartialModeOff );
 }
 
-void GammaSetTEST(SPI_HandleTypeDef *desiredSPI)//implement curves 1 2 3 4 , in one method?
+void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness) //1-4
 {
-	uint8_t Params[] = {0x01};
-	SendCommandWithParameters(desiredSPI, GammaSet, Params);
-
-	HAL_Delay(2000);
-
-	uint8_t Paramss[] = {0x02};
-	SendCommandWithParameters(desiredSPI, GammaSet, Paramss);
-
-	HAL_Delay(2000);
-
-	uint8_t Paramsss[] = {0x04};
-	SendCommandWithParameters(desiredSPI, GammaSet, Paramsss);
-
-	HAL_Delay(2000);
-
-	uint8_t Paramssss[] = {0x08};
-	SendCommandWithParameters(desiredSPI, GammaSet, Paramssss);
-
-	HAL_Delay(2000);
+	switch(brightness)
+	{
+	case 1:
+		SendCommandWithParameters(desiredSPI, GammaSet, (uint8_t){0x01});
+		break;
+	case 2:
+		SendCommandWithParameters(desiredSPI, GammaSet, (uint8_t){0x02});
+		break;
+	case 3:
+		SendCommandWithParameters(desiredSPI, GammaSet, (uint8_t){0x04});
+		break;
+	case 4:
+		SendCommandWithParameters(desiredSPI, GammaSet, (uint8_t){0x08});
+		break;
+	}
 }
 
 //End of Commands
