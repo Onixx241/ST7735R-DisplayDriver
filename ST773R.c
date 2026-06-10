@@ -5,7 +5,7 @@
  *      Author: onixt
  */
 
-//33 commandz
+//Write Commands ONLY
 #define Nop 0x00
 #define SWReset 0x01
 
@@ -23,6 +23,20 @@
 #define NormalDisplayModeOn 0x13
 
 #define GammaSet 0x26
+
+#define IdleModeOn 0x39
+#define IdleModeOff 0x38
+
+#define TearingModeOn 0x35
+#define TearingModeOff 0x34
+
+//change this to whatever yours is
+#define DataCommand DataCommand_GPIO_Port
+#define TFT_CS TFT_ChipSelect_GPIO_Port
+#define SD_CS SD_ChipSelect_GPIO_Port
+#define Reset ChipReset_GPIO_Port
+//
+
 
 #include "main.h"
 
@@ -53,6 +67,7 @@ void UnselectSD()
 	SD_ChipSelect_GPIO_Port->BSRR = GPIO_BSRR_BS_10;
 }
 
+
 void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
 {
 
@@ -64,6 +79,8 @@ void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
 	UnselectTFT();
 
 }
+
+
 void SendDataParameter(SPI_HandleTypeDef *desiredSPI, uint8_t parameter)
 {
 
@@ -135,7 +152,7 @@ void TurnPartialModeOn(SPI_HandleTypeDef *desiredSPI)
 }
 void TurnPartialModeOff(SPI_HandleTypeDef *desiredSPI)
 {
-	SendCommand(desiredSPI, PartialModeOff );
+	SendCommand(desiredSPI, NormalDisplayModeOn );
 }
 
 void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness) //1-4
@@ -166,12 +183,12 @@ void CycleReset()
 	ChipReset_GPIO_Port->BSRR = GPIO_BSRR_BR_5;
 	HAL_Delay(120);
 	ChipReset_GPIO_Port->BSRR = GPIO_BSRR_BS_5;
-	HAL_Delay(120); // is hal delay good? or should i implement my own delay
-
+	HAL_Delay(120);
 }
 
 int InitializeDriver(SPI_HandleTypeDef *desiredSPI)
 {
+
 	CycleReset();
 	SendSleepOut(desiredSPI); //chip starts in sleepin mode
 

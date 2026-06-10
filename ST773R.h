@@ -22,11 +22,13 @@ void SendSleepIn(SPI_HandleTypeDef *desiredSPI);
 
 void TurnDisplayOn(SPI_HandleTypeDef *desiredSPI);
 void TurnDisplayOff(SPI_HandleTypeDef *desiredSPI);
+
 void InversionOn(SPI_HandleTypeDef *desiredSPI);
 void TurnInversionOff(SPI_HandleTypeDef *desiredSPI);
+
 void TurnPartialModeOff(SPI_HandleTypeDef *desiredSPI);
 void TurnPartialModeOn(SPI_HandleTypeDef *desiredSPI);
-void GammaSetTEST(SPI_HandleTypeDef *desiredSPI);
+
 void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness);
 
 void CycleReset();
@@ -34,6 +36,6 @@ void CycleReset();
 void SelectTFT();
 void UnselectTFT();
 
-void SelectSD(); // for 1.8 inch adafruit lcd
+void SelectSD(); // for 1.8 inch adafruit lcd shield thingy
 void UnselectSD();
 
