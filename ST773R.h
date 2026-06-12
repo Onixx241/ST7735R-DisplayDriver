@@ -29,7 +29,18 @@ void TurnInversionOff(SPI_HandleTypeDef *desiredSPI);
 void TurnPartialModeOff(SPI_HandleTypeDef *desiredSPI);
 void TurnPartialModeOn(SPI_HandleTypeDef *desiredSPI);
 
+void SetTearingModeOn(SPI_HandleTypeDef *desiredSPI, int mode);
+void SetTearingModeOff(SPI_HandleTypeDef *desiredSPI);
+
+void SetIdleModeOn(SPI_HandleTypeDef *desiredSPI);
+void SetIdleModeOff(SPI_HandleTypeDef *desiredSPI);
+
 void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness);
+
+void SetColumnAddress(SPI_HandleTypeDef *desiredSPI, uint8_t ColumnData[]);
+void SetRowAddress(SPI_HandleTypeDef *desiredSPI, uint8_t RowData[]);
+
+void WriteToMemory(SPI_HandleTypeDef *desiredSPI, uint8_t data[]);
 
 void CycleReset();
 
