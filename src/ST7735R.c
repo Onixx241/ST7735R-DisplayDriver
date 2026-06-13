@@ -6,7 +6,7 @@
  */
 //Write Commands ONLY
 
-#include "ST773R.h"
+#include "ST7735R.h"
 
 #define Nop 0x00
 #define SWReset 0x01
