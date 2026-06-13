@@ -4,8 +4,10 @@
  *  Created on: Jun 2, 2026
  *      Author: onixt
  */
-
 //Write Commands ONLY
+
+#include "ST773R.h"
+
 #define Nop 0x00
 #define SWReset 0x01
 
@@ -59,37 +61,35 @@
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 
 
-#include "main.h"
-
-void EnableCommandSend()
+static void EnableCommandSend()
 {
 	DataCommand_GPIO_Port->BSRR = DataCommandPinLow; //Command send active low, Data when high
 }
-void EnableDataSend()
+static void EnableDataSend()
 {
 	DataCommand_GPIO_Port->BSRR = DataCommandPinHigh;
 }
 
-void SelectTFT()
+static void SelectTFT()
 {
 	TFT_ChipSelect_GPIO_Port->BSRR = TFTChipSelectLow; //Select active low
 }
-void UnselectTFT()
+static void UnselectTFT()
 {
 	TFT_ChipSelect_GPIO_Port->BSRR = TFTChipSelectHigh;
 }
 
-void SelectSD()
+static void SelectSD()
 {
 	SD_ChipSelect_GPIO_Port->BSRR = SDChipSelectLow; //Select active low
 }
-void UnselectSD()
+static void UnselectSD()
 {
 	SD_ChipSelect_GPIO_Port->BSRR = SDChipSelectHigh;
 }
 
 
-void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
+static void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
 {
 
 	SelectTFT();
@@ -102,7 +102,7 @@ void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
 }
 
 
-void SendDataParameter(SPI_HandleTypeDef *desiredSPI, uint8_t parameter)
+static void SendDataParameter(SPI_HandleTypeDef *desiredSPI, uint8_t parameter)
 {
 
 	SelectTFT();
@@ -113,7 +113,7 @@ void SendDataParameter(SPI_HandleTypeDef *desiredSPI, uint8_t parameter)
 	UnselectTFT();
 
 }
-void SendCommandWithParameters(SPI_HandleTypeDef *desiredSPI, uint8_t command, uint8_t parameters[])
+static void SendCommandWithParameters(SPI_HandleTypeDef *desiredSPI, uint8_t command, uint8_t parameters[])
 {
 	SendCommand(desiredSPI, command);
 
@@ -221,7 +221,7 @@ void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness) //1-4
 	}
 }
 
-void SetColumnAddress(SPI_HandleTypeDef *desiredSPI, uint8_t ColumnData[])
+void SetColumnAddress(SPI_HandleTypeDef *desiredSPI, uint8_t ColumnData[]) //might have to change this to 16 bits
 {
 	SendCommandWithParameters(desiredSPI, ColumnAddressSet, ColumnData);
 }
@@ -234,6 +234,11 @@ void SetRowAddress(SPI_HandleTypeDef *desiredSPI, uint8_t RowData[])
 void WriteToMemory(SPI_HandleTypeDef *desiredSPI, uint8_t data[])
 {
 	SendCommandWithParameters(desiredSPI, MemoryWrite, data);
+}
+
+void DrawPixelTest(SPI_HandleTypeDef *desiredSPI)
+{
+	SetColumnAddress(desiredSPI, (uint8_t){0x00, 0x00, 0x00});
 }
 //End of Commands
 

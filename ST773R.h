@@ -1,18 +1,14 @@
 
+#include <stdint.h>
+#include "main.h"
+
 #ifndef SRC_ST773R_H_
 #define SRC_ST773R_H_
 #endif
 
-
+//TODO: IMPLEMENT MADCTL, Memory data access control and memory write color set commands
 
 int InitializeDriver(SPI_HandleTypeDef *desiredSPI); //maybe make this return enum
-
-void EnableCommandSend();
-void EnableDataSend();
-
-void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command);
-void SendCommandWithParameters(SPI_HandleTypeDef *desiredSPI, uint8_t command, uint8_t parameters[]);
-void SendDataParameter(SPI_HandleTypeDef *desiredSPI, uint8_t parameter);
 
 void NoOperation(SPI_HandleTypeDef *desiredSPI);
 void SoftwareReset(SPI_HandleTypeDef *desiredSPI);
@@ -43,10 +39,4 @@ void SetRowAddress(SPI_HandleTypeDef *desiredSPI, uint8_t RowData[]);
 void WriteToMemory(SPI_HandleTypeDef *desiredSPI, uint8_t data[]);
 
 void CycleReset();
-
-void SelectTFT();
-void UnselectTFT();
-
-void SelectSD(); // for 1.8 inch adafruit lcd shield thingy
-void UnselectSD();
 
