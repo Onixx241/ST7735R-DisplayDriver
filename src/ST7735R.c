@@ -37,7 +37,6 @@
 
 #define MemoryWrite 0x2C
 
-//
 McuContext* MCU = 0;
 //for util
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
@@ -45,39 +44,29 @@ McuContext* MCU = 0;
 
 static void EnableCommandSend()
 {
-
 	MCU->SetDataCommandPinState(0);
-	//DataCommand_GPIO_Port->BSRR = DataCommandPinLow; //Command send active low, Data when high
-
 }
 static void EnableDataSend()
 {
-
 	MCU->SetDataCommandPinState(1);
-	//DataCommand_GPIO_Port->BSRR = DataCommandPinHigh;
-
 }
 
 static void SelectTFT()
 {
 	MCU->SetTFTChipSelectPinState(0);
-	//
 }
 static void UnselectTFT()
 {
 	MCU->SetTFTChipSelectPinState(1);
-
 }
 
 static void SelectSD()
 {
 	MCU->SetSDChipSelectPinState(0);
-	//
 }
 static void UnselectSD()
 {
 	MCU->SetSDChipSelectPinState(1);
-	//
 }
 
 
@@ -88,7 +77,6 @@ static void SendCommand(McuContext *desiredSPI, uint8_t command)
 	EnableCommandSend();
 
 	MCU->HalTransmit(command);
-	//HAL_SPI_Transmit(desiredSPI, &command, 1, 100);// change this to bare metal code -- decouple this later
 
 	UnselectTFT();
 
@@ -102,7 +90,6 @@ static void SendDataParameter(McuContext *desiredSPI, uint8_t parameter)
 	EnableDataSend();
 
 	MCU->HalTransmit(parameter);
-	//HAL_SPI_Transmit(desiredSPI, &parameter, 1, 100);// change this to bare metal code
 
 	UnselectTFT();
 
@@ -136,13 +123,11 @@ void SendSleepOut(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, SleepOut);
 	MCU->Delay(120);
-	//HAL_Delay(120); implement delay
 }
 void SendSleepIn(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, SleepIn);
 	MCU->Delay(120);
-	//HAL_Delay(120);
 }
 
 void TurnDisplayOn(McuContext *desiredSPI)
