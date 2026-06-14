@@ -37,83 +37,77 @@
 
 #define MemoryWrite 0x2C
 
-
-//change this to whatever gpio alias/port you're using
-#define DataCommand DataCommand_GPIO_Port
-#define TFT_CS TFT_ChipSelect_GPIO_Port
-#define SD_CS SD_ChipSelect_GPIO_Port
-#define Reset ChipReset_GPIO_Port
 //
-
-//Change this to whatever pins you're using
-
-#define DataCommandPinLow GPIO_BSRR_BR_10
-#define DataCommandPinHigh GPIO_BSRR_BS_10
-
-#define TFTChipSelectLow GPIO_BSRR_BR_8
-#define TFTChipSelectHigh GPIO_BSRR_BS_8
-
-#define SDChipSelectLow GPIO_BSRR_BR_10
-#define SDChipSelectHigh GPIO_BSRR_BS_10  //test if nested macros work later
-//
-
+McuContext* MCU = 0;
 //for util
 #define ARRAY_LENGTH(x) (sizeof(x) / sizeof((x)[0]))
 
 
 static void EnableCommandSend()
 {
-	DataCommand_GPIO_Port->BSRR = DataCommandPinLow; //Command send active low, Data when high
+
+	MCU->SetDataCommandPinState(0);
+	//DataCommand_GPIO_Port->BSRR = DataCommandPinLow; //Command send active low, Data when high
+
 }
 static void EnableDataSend()
 {
-	DataCommand_GPIO_Port->BSRR = DataCommandPinHigh;
+
+	MCU->SetDataCommandPinState(1);
+	//DataCommand_GPIO_Port->BSRR = DataCommandPinHigh;
+
 }
 
 static void SelectTFT()
 {
-	TFT_ChipSelect_GPIO_Port->BSRR = TFTChipSelectLow; //Select active low
+	MCU->SetTFTChipSelectPinState(0);
+	//
 }
 static void UnselectTFT()
 {
-	TFT_ChipSelect_GPIO_Port->BSRR = TFTChipSelectHigh;
+	MCU->SetTFTChipSelectPinState(1);
+
 }
 
 static void SelectSD()
 {
-	SD_ChipSelect_GPIO_Port->BSRR = SDChipSelectLow; //Select active low
+	MCU->SetSDChipSelectPinState(0);
+	//
 }
 static void UnselectSD()
 {
-	SD_ChipSelect_GPIO_Port->BSRR = SDChipSelectHigh;
+	MCU->SetSDChipSelectPinState(1);
+	//
 }
 
 
-static void SendCommand(SPI_HandleTypeDef *desiredSPI, uint8_t command)
+static void SendCommand(McuContext *desiredSPI, uint8_t command)
 {
 
 	SelectTFT();
 	EnableCommandSend();
 
-	HAL_SPI_Transmit(desiredSPI, &command, 1, 100);// change this to bare metal code
+	MCU->HalTransmit(command);
+	//HAL_SPI_Transmit(desiredSPI, &command, 1, 100);// change this to bare metal code -- decouple this later
 
 	UnselectTFT();
 
 }
 
 
-static void SendDataParameter(SPI_HandleTypeDef *desiredSPI, uint8_t parameter)
+static void SendDataParameter(McuContext *desiredSPI, uint8_t parameter)
 {
 
 	SelectTFT();
 	EnableDataSend();
 
-	HAL_SPI_Transmit(desiredSPI, &parameter, 1, 100);// change this to bare metal code
+	MCU->HalTransmit(parameter);
+	//HAL_SPI_Transmit(desiredSPI, &parameter, 1, 100);// change this to bare metal code
 
 	UnselectTFT();
 
 }
-static void SendCommandWithParameters(SPI_HandleTypeDef *desiredSPI, uint8_t command, uint8_t parameters[])
+static void SendCommandWithParameters(McuContext *desiredSPI, uint8_t command, uint8_t parameters[])
 {
 	SendCommand(desiredSPI, command);
 
@@ -128,64 +122,66 @@ static void SendCommandWithParameters(SPI_HandleTypeDef *desiredSPI, uint8_t com
 
 //Commmands
 
-void NoOperation(SPI_HandleTypeDef *desiredSPI)
+void NoOperation(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, Nop);
 }
 
-void SoftwareReset(SPI_HandleTypeDef *desiredSPI)
+void SoftwareReset(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, SWReset);
 }
 
-void SendSleepOut(SPI_HandleTypeDef *desiredSPI)
+void SendSleepOut(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, SleepOut);
-	HAL_Delay(120);
+	MCU->Delay(120);
+	//HAL_Delay(120); implement delay
 }
-void SendSleepIn(SPI_HandleTypeDef *desiredSPI)
+void SendSleepIn(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, SleepIn);
-	HAL_Delay(120);
+	MCU->Delay(120);
+	//HAL_Delay(120);
 }
 
-void TurnDisplayOn(SPI_HandleTypeDef *desiredSPI)
+void TurnDisplayOn(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, DisplayOn);
 }
-void TurnDisplayOff(SPI_HandleTypeDef *desiredSPI)
+void TurnDisplayOff(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, DisplayOff);
 }
 
-void TurnInversionOn(SPI_HandleTypeDef *desiredSPI)
+void TurnInversionOn(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, InversionOn);
 }
-void TurnInversionOff(SPI_HandleTypeDef *desiredSPI)
+void TurnInversionOff(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, InversionOff);
 }
 
-void TurnPartialModeOn(SPI_HandleTypeDef *desiredSPI)
+void TurnPartialModeOn(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, PartialModeOn );
 }
-void TurnPartialModeOff(SPI_HandleTypeDef *desiredSPI)
+void TurnPartialModeOff(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, NormalDisplayModeOn );
 }
 
-void SetIdleModeOn(SPI_HandleTypeDef *desiredSPI)
+void SetIdleModeOn(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, IdleModeOn);
 }
-void SetIdleModeOff(SPI_HandleTypeDef *desiredSPI)
+void SetIdleModeOff(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, IdleModeOff);
 }
 
-void SetTearingModeOn(SPI_HandleTypeDef *desiredSPI, int mode)
+void SetTearingModeOn(McuContext *desiredSPI, int mode)
 {
 	switch(mode)
 	{
@@ -197,12 +193,12 @@ void SetTearingModeOn(SPI_HandleTypeDef *desiredSPI, int mode)
 		break;
 	}
 }
-void SetTearingModeOff(SPI_HandleTypeDef *desiredSPI)
+void SetTearingModeOff(McuContext *desiredSPI)
 {
 	SendCommand(desiredSPI, TearingModeOff);
 }
 
-void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness) //1-4
+void SetBrightness(McuContext *desiredSPI, int brightness) //1-4
 {
 	switch(brightness)
 	{
@@ -221,39 +217,38 @@ void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness) //1-4
 	}
 }
 
-void SetColumnAddress(SPI_HandleTypeDef *desiredSPI, uint8_t ColumnData[]) //might have to change this to 16 bits
+void SetColumnAddress(McuContext *desiredSPI, uint8_t ColumnData[]) //might have to change this to 16 bits
 {
 	SendCommandWithParameters(desiredSPI, ColumnAddressSet, ColumnData);
 }
 
-void SetRowAddress(SPI_HandleTypeDef *desiredSPI, uint8_t RowData[])
+void SetRowAddress(McuContext *desiredSPI, uint8_t RowData[])
 {
 	SendCommandWithParameters(desiredSPI, RowAddressSet, RowData);
 }
 
-void WriteToMemory(SPI_HandleTypeDef *desiredSPI, uint8_t data[])
+void WriteToMemory(McuContext *desiredSPI, uint8_t data[])
 {
 	SendCommandWithParameters(desiredSPI, MemoryWrite, data);
 }
 
-void DrawPixelTest(SPI_HandleTypeDef *desiredSPI)
-{
-	SetColumnAddress(desiredSPI, (uint8_t){0x00, 0x00, 0x00});
-}
 //End of Commands
 
 
 void CycleReset()
 {
 
-	ChipReset_GPIO_Port->BSRR = GPIO_BSRR_BR_5;
-	HAL_Delay(120);
-	ChipReset_GPIO_Port->BSRR = GPIO_BSRR_BS_5;
-	HAL_Delay(120);
+	MCU->SetChipResetPinState(0);
+	MCU->Delay(120);
+
+	MCU->SetChipResetPinState(1);
+	MCU->Delay(120);
 }
 
-int InitializeDriver(SPI_HandleTypeDef *desiredSPI)
+int InitializeDriver(McuContext *desiredSPI)
 {
+
+	MCU = desiredSPI;
 
 	CycleReset();
 	SendSleepOut(desiredSPI); //chip starts in sleepin mode

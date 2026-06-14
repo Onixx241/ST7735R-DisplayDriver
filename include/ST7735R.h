@@ -8,35 +8,52 @@
 
 //TODO: IMPLEMENT MADCTL, Memory data access control and memory write color set commands
 
-int InitializeDriver(SPI_HandleTypeDef *desiredSPI); //maybe make this return enum
+typedef struct
+{
+	void* SPIContext;
 
-void NoOperation(SPI_HandleTypeDef *desiredSPI);
-void SoftwareReset(SPI_HandleTypeDef *desiredSPI);
+	void (*SendCommand)(uint8_t cmd);
+	void (*SendData)(uint8_t cmd);
+	void (*SetDataCommandPinState)(uint8_t state);
+	void (*SetTFTChipSelectPinState)(uint8_t state);
+	void (*SetSDChipSelectPinState)(uint8_t state);
+	void (*SetChipResetPinState)(uint8_t state);
+	void (*Delay)(int ms);
 
-void SendSleepOut(SPI_HandleTypeDef *desiredSPI);
-void SendSleepIn(SPI_HandleTypeDef *desiredSPI);
+	//for testing
+	void (*HalTransmit)(uint8_t command);
+} McuContext;
 
-void TurnDisplayOn(SPI_HandleTypeDef *desiredSPI);
-void TurnDisplayOff(SPI_HandleTypeDef *desiredSPI);
 
-void InversionOn(SPI_HandleTypeDef *desiredSPI);
-void TurnInversionOff(SPI_HandleTypeDef *desiredSPI);
+int InitializeDriver(McuContext *desiredSPI); //maybe make this return enum
 
-void TurnPartialModeOff(SPI_HandleTypeDef *desiredSPI);
-void TurnPartialModeOn(SPI_HandleTypeDef *desiredSPI);
+void NoOperation(McuContext *desiredSPI);
+void SoftwareReset(McuContext *desiredSPI);
 
-void SetTearingModeOn(SPI_HandleTypeDef *desiredSPI, int mode);
-void SetTearingModeOff(SPI_HandleTypeDef *desiredSPI);
+void SendSleepOut(McuContext *desiredSPI);
+void SendSleepIn(McuContext *desiredSPI);
 
-void SetIdleModeOn(SPI_HandleTypeDef *desiredSPI);
-void SetIdleModeOff(SPI_HandleTypeDef *desiredSPI);
+void TurnDisplayOn(McuContext *desiredSPI);
+void TurnDisplayOff(McuContext *desiredSPI);
 
-void SetBrightness(SPI_HandleTypeDef *desiredSPI, int brightness);
+void InversionOn(McuContext *desiredSPI);
+void TurnInversionOff(McuContext *desiredSPI);
 
-void SetColumnAddress(SPI_HandleTypeDef *desiredSPI, uint8_t ColumnData[]);
-void SetRowAddress(SPI_HandleTypeDef *desiredSPI, uint8_t RowData[]);
+void TurnPartialModeOff(McuContext *desiredSPI);
+void TurnPartialModeOn(McuContext *desiredSPI);
 
-void WriteToMemory(SPI_HandleTypeDef *desiredSPI, uint8_t data[]);
+void SetTearingModeOn(McuContext *desiredSPI, int mode);
+void SetTearingModeOff(McuContext *desiredSPI);
+
+void SetIdleModeOn(McuContext *desiredSPI);
+void SetIdleModeOff(McuContext *desiredSPI);
+
+void SetBrightness(McuContext *desiredSPI, int brightness);
+
+void SetColumnAddress(McuContext *desiredSPI, uint8_t ColumnData[]);
+void SetRowAddress(McuContext *desiredSPI, uint8_t RowData[]);
+
+void WriteToMemory(McuContext *desiredSPI, uint8_t data[]);
 
 void CycleReset();
 

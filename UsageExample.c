@@ -18,7 +18,23 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "ST773R.h"
+#include "ST7735R.h"
+
+
+#define DataCommand DataCommand_GPIO_Port
+#define TFT_CS TFT_ChipSelect_GPIO_Port
+#define SD_CS SD_ChipSelect_GPIO_Port
+#define Reset ChipReset_GPIO_Port
+
+
+#define DataCommandPinLow GPIO_BSRR_BR_10
+#define DataCommandPinHigh GPIO_BSRR_BS_10
+
+#define TFTChipSelectLow GPIO_BSRR_BR_8
+#define TFTChipSelectHigh GPIO_BSRR_BS_8
+
+#define SDChipSelectLow GPIO_BSRR_BR_10
+#define SDChipSelectHigh GPIO_BSRR_BS_10
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -65,10 +81,101 @@ static void MX_USART2_UART_Init(void);
 /**
   * @brief  The application entry point.
   * @retval int
+  *
   */
+void SetChipResetPinState(int state)
+{
+
+	switch(state)
+	{
+	case 0:
+		ChipReset_GPIO_Port->BSRR = GPIO_BSRR_BR_5;
+		break;
+
+	case 1:
+		ChipReset_GPIO_Port->BSRR = GPIO_BSRR_BS_5;
+		break;
+	}
+
+}
+
+void HalTransmit(uint8_t data)
+{
+	HAL_SPI_Transmit(&hspi1, &data, 1, 100);
+}
+
+void SendCommand(uint8_t cmd)
+{
+	HalTransmit(cmd);
+}
+
+void SendData(uint8_t parameter)
+{
+	HalTransmit(parameter);
+}
+
+void SetDataCommandPinState(int state)
+{
+	switch(state)
+	{
+
+	case 0:
+		DataCommand_GPIO_Port->BSRR = DataCommandPinLow; //command
+		break;
+
+	case 1:
+		DataCommand_GPIO_Port->BSRR = DataCommandPinHigh; //data
+		break;
+
+	}
+}
+void SetTFTChipSelectPinState(int state)
+{
+	switch(state)
+	{
+	case 0:
+		TFT_ChipSelect_GPIO_Port->BSRR = TFTChipSelectLow; //Select active low
+		break;
+	case 1:
+		TFT_ChipSelect_GPIO_Port->BSRR = TFTChipSelectHigh;
+		break;
+	}
+}
+void SetSDChipSelectPinState(int state)
+{
+	switch(state)
+	{
+	case 0:
+		SD_ChipSelect_GPIO_Port->BSRR = SDChipSelectLow; //Select active low
+		break;
+	case 1:
+		SD_ChipSelect_GPIO_Port->BSRR = SDChipSelectHigh;
+		break;
+
+	}
+}
+
+void Delay(uint32_t ms)
+{
+	HAL_Delay(ms);
+}
+
+
 int main(void)
 {
 
+	McuContext MCU =
+	{
+			.SPIContext = &hspi1,
+			.HalTransmit = HalTransmit,
+			.SetDataCommandPinState = SetDataCommandPinState,
+			.SetTFTChipSelectPinState = SetTFTChipSelectPinState,
+			.SetSDChipSelectPinState = SetSDChipSelectPinState,
+			.SetChipResetPinState = SetChipResetPinState,
+			.SendCommand = SendCommand,
+			.SendData = SendData,
+			.Delay = Delay
+	};
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -97,14 +204,28 @@ int main(void)
 
   /* USER CODE END 2 */
 
-  InitializeDriver(&hspi1);
+
+
+  //these parameters arent right
+
+  InitializeDriver(&MCU);
+
+
+  TurnDisplayOn(&MCU);
+
+
 
   while (1)
   {
-	  TurnDisplayOff(&hspi1);
+
+	  TurnDisplayOff(&MCU);
+
 	  HAL_Delay(2000);
-	  TurnDisplayOn(&hspi1);
+
+	  TurnDisplayOn(&MCU);
+
 	  HAL_Delay(2000);
+
   }
   /* USER CODE END 3 */
 }
