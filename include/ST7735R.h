@@ -1,9 +1,8 @@
 
 #include <stdint.h>
-#include "main.h"
 
-#ifndef SRC_ST773R_H_
-#define SRC_ST773R_H_
+#ifndef ST7735R_H
+#define ST7735R_H
 #endif
 
 //TODO: IMPLEMENT MADCTL, Memory data access control and memory write color set commands
