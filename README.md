@@ -5,26 +5,30 @@
 [![Platform: STM32](https://img.shields.io/badge/platform-STM32-lightgrey.svg)]()
 
 ## About
-Lightweight WIP C driver for STM32 Nucleo Boards (can be repurposed for other boards just fork and open a PR)
+Platform agnostic lightweight C Driver for ST7735R based LCD's
 
 ## Usage
-Edit Macros in ST773R to match your ports/pins and for communication set your desired SPI in function calls.
+
+Implement Methods then set them in a new McuContext struct.
 ```
-//change this to whatever gpio alias/port you're using
-#define DataCommand DataCommand_GPIO_Port
-#define TFT_CS TFT_ChipSelect_GPIO_Port
-#define SD_CS SD_ChipSelect_GPIO_Port
-#define Reset ChipReset_GPIO_Port
-//
-
-//Change this to whatever pins you're using
-
-#define DataCommandPinLow GPIO_BSRR_BR_10
-#define DataCommandPinHigh GPIO_BSRR_BS_10
-
-#define TFTChipSelectLow GPIO_BSRR_BR_8
-#define TFTChipSelectHigh GPIO_BSRR_BS_8
-
-#define SDChipSelectLow GPIO_BSRR_BR_10
-#define SDChipSelectHigh GPIO_BSRR_BS_10
- ```
+McuContext MCU =
+	{
+			.SPIContext = &hspi1,
+			.HalTransmit = HalTransmit,
+			.SetDataCommandPinState = SetDataCommandPinState,
+			.SetTFTChipSelectPinState = SetTFTChipSelectPinState,
+			.SetSDChipSelectPinState = SetSDChipSelectPinState,
+			.SetChipResetPinState = SetChipResetPinState,
+			.SendCommand = SendCommand,
+			.SendData = SendData,
+			.Delay = Delay
+	};
+```
+- SPIContext: Reference to your desired SPI handle
+- HalTransmit: Your implemented method to transmit via SPI
+- SetDataCommandPinState: Your implemented method to toggle your desired data command pin
+- SetTFTChipSelectPinState: Your implemented method to toggle your desired TFT Chip Select pin
+- SetSDChipSelectPinState: Your implemented method to toggle your desired SD Chip Select pin
+- SendCommand: Your implemented method to send commands to the screen driver (Usually in conjunction with HalTransmit)
+- SendData: Your implemented method to send data/parameters to the screen driver (Usually in conjunction with HalTransmit)
+- Delay: Your implemented delay method
